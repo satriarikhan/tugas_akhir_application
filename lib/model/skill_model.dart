@@ -1,3 +1,5 @@
+// lib/model/skill_model.dart (SUDAH DIPERBAIKI)
+
 class Skill {
   final String skillType; // EX, Basic, Passive, Sub
   final String name;
@@ -21,16 +23,24 @@ class Skill {
     List<String> skillParams =
         paramList?.map((p) => p.toString()).toList() ?? [];
 
-    return Skill(
-      skillType: json['SkillType'] ?? 'N/A', // <-- Tambahkan ??
-      name: json['Name'] ?? 'No Name', // <-- Tambahkan ??
-      description: json['Desc'] ?? '', // <-- Tambahkan ??
-      parameters: skillParams,
-      cost: json['Cost'] ?? 0,
+    // --- PERBAIKAN DI SINI ---
+    int skillCost = 0;
+    // Cek apakah 'Cost' ada, apakah itu List, dan apakah tidak kosong
+    if (json['Cost'] != null && json['Cost'] is List && (json['Cost'] as List).isNotEmpty) {
+      // Ambil biaya pertama (level 1) dari list
+      skillCost = (json['Cost'] as List)[0] ?? 0;
+    }
+    // --- AKHIR PERBAIKAN ---
 
-      // Pastikan 'Icon' tidak pernah null sebelum digabungkan
+    return Skill(
+      skillType: json['SkillType'] ?? 'N/A', 
+      name: json['Name'] ?? 'No Name', 
+      description: json['Desc'] ?? '', 
+      parameters: skillParams,
+      cost: skillCost, // Gunakan variabel yang sudah diparsing
+      
       iconUrl:
-          'https://schaledb.s3.ap-northeast-2.amazonaws.com/images/skill/${json['Icon'] ?? 'default'}.webp', // <-- Amankan juga
+          'https://schaledb.s3.ap-northeast-2.amazonaws.com/images/skill/${json['Icon'] ?? 'default'}.webp',
     );
   }
 }

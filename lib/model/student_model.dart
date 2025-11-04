@@ -1,5 +1,4 @@
-
-
+// lib/model/student_model.dart (SUDAH DIPERBAIKI)
 
 import 'package:tugas_akhir_application/model/profile_model.dart';
 import 'package:tugas_akhir_application/model/skill_model.dart';
@@ -28,8 +27,6 @@ class Student {
   final List<String> equipment; // Ini bisa jadi List<Item> jika Item punya data sendiri
 
   // --- Statistik (Contoh Sederhana) ---
-  // JSON-nya memiliki BaseStats, MaxStats, dll.
-  // Mari kita ambil MaxStats (level 100) sebagai contoh.
   final int maxHp;
   final int maxAtk;
   final int maxDef;
@@ -65,43 +62,57 @@ class Student {
   });
 
   factory Student.fromJson(Map<String, dynamic> json) {
-  String studentId = json['Id'].toString();
-  
-  var skillList = json['Skills'] as List;
-  List<Skill> studentSkills = skillList.map((s) => Skill.fromJson(s)).toList();
-
-  var equipList = json['Equipment'] as List;
-  List<String> studentEquipment = equipList.map((e) => e.toString()).toList();
-
-  return Student(
-    id: json['Id'],
-    name: json['Name'] ?? 'Unknown', // <-- Tambahkan ??
-    school: json['School'] ?? 'N/A',
-    club: json['Club'] ?? 'N/A',
-    squadType: json['SquadType'] ?? 'N/A', // <-- Tambahkan ??
-    tacticRole: json['TacticRole'] ?? 'N/A', // <-- Tambahkan ??
-    armorType: json['ArmorType'] ?? 'N/A', // <-- Tambahkan ??
-    bulletType: json['BulletType'] ?? 'N/A', // <-- Tambahkan ??
-    weaponType: json['WeaponType'] ?? 'N/A', // <-- Tambahkan ??
+    String studentId = json['Id'].toString();
     
-    // Terrain sepertinya aman karena strukturnya, tapi bisa juga dicek
-    terrainStreet: json['Terrain']?['Street'] ?? 'D',
-    terrainOutdoor: json['Terrain']?['Outdoor'] ?? 'D',
-    terrainIndoor: json['Terrain']?['Indoor'] ?? 'D',
+    // Amankan parsing list
+    var skillList = json['Skills'] as List?;
+    List<Skill> studentSkills = skillList?.map((s) => Skill.fromJson(s)).toList() ?? [];
+
+    var equipList = json['Equipment'] as List?;
+    List<String> studentEquipment = equipList?.map((e) => e.toString()).toList() ?? [];
+
+    // --- PERBAIKAN: AKSES STATS DENGAN AMAN ---
+    var statsMap = json['Stats'] as Map<String, dynamic>?;
+    var maxStatsMap = statsMap?['MaxStats'] as Map<String, dynamic>?;
+    var level100StatsMap = maxStatsMap?['100'] as Map<String, dynamic>?;
+
+    int hp = level100StatsMap?['MaxHP'] ?? 0;
+    int atk = level100StatsMap?['AttackPower'] ?? 0;
+    int def = level100StatsMap?['DefensePower'] ?? 0;
+    int heal = level100StatsMap?['HealPower'] ?? 0;
     
-    skills: studentSkills,
-    weapon: Weapon.fromJson(json['Weapon']),
-    profile: Profile.fromJson(json['Profile']),
-    equipment: studentEquipment,
+    // --- PERBAIKAN: UMPANKAN MAP KOSONG JIKA DATA NULL ---
+    // Ini mencegah error 'null['key']' di model Weapon atau Profile
+    var weaponData = json['Weapon'] as Map<String, dynamic>? ?? {};
+    var profileData = json['Profile'] as Map<String, dynamic>? ?? {};
 
-    // Ambil stats (asumsi struktur ini selalu ada)
-    maxHp: json['Stats']['MaxStats']['100']['MaxHP'],
-    maxAtk: json['Stats']['MaxStats']['100']['AttackPower'],
-    maxDef: json['Stats']['MaxStats']['100']['DefensePower'],
-    maxHeal: json['Stats']['MaxStats']['100']['HealPower'],
+    return Student(
+      id: json['Id'],
+      name: json['Name'] ?? 'Unknown',
+      school: json['School'] ?? 'N/A',
+      club: json['Club'] ?? 'N/A',
+      squadType: json['SquadType'] ?? 'N/A',
+      tacticRole: json['TacticRole'] ?? 'N/A',
+      armorType: json['ArmorType'] ?? 'N/A',
+      bulletType: json['BulletType'] ?? 'N/A',
+      weaponType: json['WeaponType'] ?? 'N/A',
+      
+      terrainStreet: json['Terrain']?['Street'] ?? 'D',
+      terrainOutdoor: json['Terrain']?['Outdoor'] ?? 'D',
+      terrainIndoor: json['Terrain']?['Indoor'] ?? 'D',
+      
+      skills: studentSkills,
+      weapon: Weapon.fromJson(weaponData), // Umpan data yang aman
+      profile: Profile.fromJson(profileData), // Umpan data yang aman
+      equipment: studentEquipment,
 
-    iconUrl: 'https://raw.githubusercontent.com/SchaleDB/SchaleDB/main/images/student/icon/$studentId.webp',
-    portraitUrl: 'https://schaledb.s3.ap-northeast-2.amazonaws.com/images/student/portrait/$studentId.webp',
-  );
-}
+      maxHp: hp,
+      maxAtk: atk,
+      maxDef: def,
+      maxHeal: heal,
+
+      iconUrl: 'https://raw.githubusercontent.com/SchaleDB/SchaleDB/main/images/student/icon/$studentId.webp',
+      portraitUrl: 'https://schaledb.s3.ap-northeast-2.amazonaws.com/images/student/portrait/$studentId.webp',
+    );
+  }
 }
