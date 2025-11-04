@@ -20,15 +20,15 @@ class MyApp extends StatelessWidget {
         brightness: Brightness.dark,
         primarySwatch: Colors.blue,
         scaffoldBackgroundColor: const Color(0xFF121212),
-        appBarTheme: const AppBarTheme(
-          backgroundColor: Color(0xFF1F1F1F),
-        ),
+        appBarTheme: const AppBarTheme(backgroundColor: Color(0xFF1F1F1F)),
         cardColor: const Color(0xFF1E1E1E),
         inputDecorationTheme: InputDecorationTheme(
           filled: true,
           fillColor: const Color(0xFF1E1E1E),
-          contentPadding:
-              const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 16.0,
+            vertical: 8.0,
+          ),
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(8.0),
             borderSide: BorderSide.none,
@@ -59,15 +59,34 @@ class _StudentListScreenState extends State<StudentListScreen> {
   String? _selectedRole;
 
   // Data untuk Dropdown Filter
-  final List<String> _schools = ['All', 'Gehenna', 'Trinity', 'Millennium', 'Abydos', 'Red Winter', 'Valkyrie', 'Arius', 'Hyakkiyako', 'Shanhaijing', 'SRT'];
+  final List<String> _schools = [
+    'All',
+    'Gehenna',
+    'Trinity',
+    'Millennium',
+    'Abydos',
+    'Red Winter',
+    'Valkyrie',
+    'Arius',
+    'Hyakkiyako',
+    'Shanhaijing',
+    'SRT',
+  ];
   final List<String> _attackTypes = ['All', 'Explosive', 'Piercing', 'Mystic'];
-  final List<String> _roles = ['All', 'DamageDealer', 'Tank', 'Healer', 'Supporter', 'T.S.'];
+  final List<String> _roles = [
+    'All',
+    'DamageDealer',
+    'Tank',
+    'Healer',
+    'Supporter',
+    'T.S.',
+  ];
 
   @override
   void initState() {
     super.initState();
     futureStudents = ApiService().getStudents();
-    
+
     // Listener untuk search bar
     _searchController.addListener(() {
       setState(() {
@@ -85,9 +104,7 @@ class _StudentListScreenState extends State<StudentListScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('SchaleDB - Student List'),
-      ),
+      appBar: AppBar(title: const Text('Student List')),
       body: Column(
         children: [
           // Widget untuk Search Bar
@@ -107,23 +124,30 @@ class _StudentListScreenState extends State<StudentListScreen> {
                   } else if (snapshot.hasError) {
                     return Text('Error: ${snapshot.error}');
                   } else if (snapshot.hasData) {
-                    
                     final allStudents = snapshot.data!;
-                    
+
                     // Logika filter diterapkan di sini
                     final filteredStudents = allStudents.where((student) {
-                      final nameMatch = student.name.toLowerCase().contains(_searchQuery);
-                      final schoolMatch = _selectedSchool == null || 
-                                          _selectedSchool == 'All' || 
-                                          student.school == _selectedSchool;
-                      final attackMatch = _selectedAttackType == null || 
-                                          _selectedAttackType == 'All' || 
-                                          student.bulletType == _selectedAttackType;
-                      final roleMatch = _selectedRole == null ||
-                                          _selectedRole == 'All' ||
-                                          student.tacticRole == _selectedRole;
+                      final nameMatch = student.name.toLowerCase().contains(
+                        _searchQuery,
+                      );
+                      final schoolMatch =
+                          _selectedSchool == null ||
+                          _selectedSchool == 'All' ||
+                          student.school == _selectedSchool;
+                      final attackMatch =
+                          _selectedAttackType == null ||
+                          _selectedAttackType == 'All' ||
+                          student.bulletType == _selectedAttackType;
+                      final roleMatch =
+                          _selectedRole == null ||
+                          _selectedRole == 'All' ||
+                          student.tacticRole == _selectedRole;
 
-                      return nameMatch && schoolMatch && attackMatch && roleMatch;
+                      return nameMatch &&
+                          schoolMatch &&
+                          attackMatch &&
+                          roleMatch;
                     }).toList();
 
                     // --- PERUBAHAN DI SINI ---
@@ -218,10 +242,7 @@ class _StudentListScreenState extends State<StudentListScreen> {
           hint: Text(hint, style: TextStyle(color: Colors.grey[600])),
           dropdownColor: const Color(0xFF2A2A2A),
           items: items.map((String item) {
-            return DropdownMenuItem<String>(
-              value: item,
-              child: Text(item),
-            );
+            return DropdownMenuItem<String>(value: item, child: Text(item));
           }).toList(),
           onChanged: onChanged,
         ),
@@ -253,19 +274,19 @@ class StudentGridView extends StatelessWidget {
     // Gunakan GridView.builder
     return GridView.builder(
       padding: const EdgeInsets.all(12.0),
-      
+
       // Logika untuk 4 kolom
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 4,    // 4 item per baris
+        crossAxisCount: 4, // 4 item per baris
         crossAxisSpacing: 10, // Jarak horizontal
-        mainAxisSpacing: 10,  // Jarak vertikal
+        mainAxisSpacing: 10, // Jarak vertikal
         childAspectRatio: 0.8, // Rasio item, sesuaikan jika perlu
       ),
-      
+
       itemCount: students.length,
       itemBuilder: (context, index) {
         final student = students[index];
-        
+
         // Panggil widget Grid Item yang baru
         return StudentGridItem(
           student: student,
@@ -283,7 +304,6 @@ class StudentGridView extends StatelessWidget {
     );
   }
 }
-
 
 // --- WIDGET BARU UNTUK TAMPILAN ITEM DI GRID ---
 
@@ -303,7 +323,9 @@ class StudentGridItem extends StatelessWidget {
       // Buat kartu bisa diklik
       child: InkWell(
         onTap: onTap, // Panggil fungsi navigasi saat diketuk
-        borderRadius: BorderRadius.circular(8.0), // Sesuaikan dengan radius Card
+        borderRadius: BorderRadius.circular(
+          8.0,
+        ), // Sesuaikan dengan radius Card
         child: Padding(
           padding: const EdgeInsets.all(8.0),
           child: Column(
@@ -318,7 +340,7 @@ class StudentGridItem extends StatelessWidget {
                 radius: 30, // Sedikit lebih besar dari ListTile
               ),
               const SizedBox(height: 12),
-              
+
               // Nama Siswa
               Text(
                 student.name,
@@ -328,18 +350,16 @@ class StudentGridItem extends StatelessWidget {
                   fontSize: 14,
                 ),
                 maxLines: 1, // Agar tidak lebih dari 1 baris
-                overflow: TextOverflow.ellipsis, // Tampilkan '...' jika teks terlalu panjang
+                overflow: TextOverflow
+                    .ellipsis, // Tampilkan '...' jika teks terlalu panjang
               ),
               const SizedBox(height: 4),
-              
+
               // Sekolah Siswa
               Text(
                 student.school,
                 textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 12,
-                  color: Colors.grey[400],
-                ),
+                style: TextStyle(fontSize: 12, color: Colors.grey[400]),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),
