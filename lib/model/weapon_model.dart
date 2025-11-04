@@ -1,3 +1,4 @@
+// lib/model/weapon_model.dart (GANTI SEMUA ISINYA DENGAN INI)
 
 class Weapon {
   final String name;
@@ -23,38 +24,48 @@ class Weapon {
   });
 
   factory Weapon.fromJson(Map<String, dynamic> json) {
-    var stats = json['Stats'];
+    // 'json' bisa jadi {} jika tidak ada data weapon
     
-    // --- PERBAIKAN UNTUK KEAMANAN DATA ---
+    // --- PERBAIKAN UTAMA: Tangani 'Stats' yang null ---
+    // Jika json['Stats'] null, kita gunakan map kosong {} sebagai default
+    var stats = json['Stats'] as Map<String, dynamic>? ?? {}; 
+    
     String stat1Type = 'N/A';
     int stat1Value = 0;
-    // Cek apakah 'Type' ada dan tidak kosong
-    if (stats['Type'] != null && (stats['Type'] as List).isNotEmpty) {
-      stat1Type = stats['Type'][0];
+    // Ambil list 'Type' dan 'Value' dari 'stats' (yang sekarang dijamin tidak null)
+    var typeList = stats['Type'] as List?;
+    var valueList = stats['Value'] as List?;
+
+    // Cek typeList
+    if (typeList != null && typeList.isNotEmpty) {
+      stat1Type = typeList[0] ?? 'N/A';
     }
-    // Cek apakah 'Value' ada, tidak kosong, dan list di dalamnya tidak kosong
-    if (stats['Value'] != null && (stats['Value'] as List).isNotEmpty) {
-      var valueList1 = stats['Value'][0] as List?;
+    
+    // Cek valueList
+    if (valueList != null && valueList.isNotEmpty) {
+      var valueList1 = valueList[0] as List?;
       if (valueList1 != null && valueList1.isNotEmpty) {
-        stat1Value = valueList1.last ?? 0; // Ambil stat level terakhir
+        // Ambil stat level terakhir dan pastikan tipenya int
+        stat1Value = (valueList1.last ?? 0) as int;
       }
     }
   
     String stat2Type = 'N/A';
     int stat2Value = 0;
-    // Cek apakah 'Type' punya elemen kedua
-    if (stats['Type'] != null && (stats['Type'] as List).length > 1) {
-      stat2Type = stats['Type'][1];
+    
+    // Cek elemen kedua
+    if (typeList != null && typeList.length > 1) {
+      stat2Type = typeList[1] ?? 'N/A';
     }
-    // Cek apakah 'Value' punya elemen kedua, dan list di dalamnya tidak kosong
-    if (stats['Value'] != null && (stats['Value'] as List).length > 1) {
-       var valueList2 = stats['Value'][1] as List?;
+    
+    if (valueList != null && valueList.length > 1) {
+       var valueList2 = valueList[1] as List?;
        if (valueList2 != null && valueList2.isNotEmpty) {
-          stat2Value = valueList2.last ?? 0; // Ambil stat level terakhir
+          // Ambil stat level terakhir dan pastikan tipenya int
+          stat2Value = (valueList2.last ?? 0) as int;
        }
     }
-    // --- AKHIR PERBAIKAN ---
-
+  
     return Weapon(
       name: json['Name'] ?? 'No Weapon',
       description: json['Desc'] ?? '',
