@@ -1,8 +1,8 @@
-// lib/screens/student_detail_screen.dart
+// lib/screen/student_detail_screen.dart
 import 'package:flutter/material.dart';
+// Sesuaikan path import Anda
 import 'package:tugas_akhir_application/model/skill_model.dart';
 import 'package:tugas_akhir_application/model/student_model.dart';
-
 
 class StudentDetailScreen extends StatelessWidget {
   final Student student;
@@ -11,95 +11,124 @@ class StudentDetailScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // DefaultTabController adalah logic utama untuk Tab
-    return DefaultTabController(
-      length: 4, // Jumlah tab kita: Info, Skills, Weapon, Profile
-      child: Scaffold(
-        appBar: AppBar(
-          title: Text(student.name),
-        ),
-        body: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // --- 1. HEADER GAMBAR ---
-              _buildHeaderImage(student),
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(student.name),
+      ),
+      // --- PERBAIKAN UTAMA: GANTI 'Stack' MENJADI 'Row' ---
+      body: Row(
+        children: [
+          
+          // --- 1. KONTEN (DI KIRI) ---
+          Expanded(
+            flex: 6, // Beri 60% lebar untuk konten
+            child: DefaultTabController(
+              length: 4, // Info, Skills, Weapon, Profile
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  
+                  // Info Dasar (Nama, Sekolah)
+                  Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: _buildBasicInfo(student, context),
+                  ),
 
-              // --- 2. INFO DASAR ---
-              _buildBasicInfo(student, context),
+                  // Tab UI
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                    child: const TabBar(
+                      isScrollable: true,
+                      indicatorWeight: 3.0,
+                      tabs: [
+                        Tab(text: 'Info'),
+                        Tab(text: 'Skills'),
+                        Tab(text: 'Weapon'),
+                        Tab(text: 'Profile'),
+                      ],
+                    ),
+                  ),
+                  
+                  // Garis pemisah
+                  const Divider(height: 1, thickness: 1, color: Colors.white24),
 
-              // --- 3. TAB UI ---
-              const TabBar(
-                isScrollable: true, // Agar bisa di-scroll jika tab-nya banyak
-                tabs: [
-                  Tab(text: 'Info'),
-                  Tab(text: 'Skills'),
-                  Tab(text: 'Weapon'),
-                  Tab(text: 'Profile'),
+                  // Konten Tab (Expanded agar mengisi sisa ruang vertikal)
+                  Expanded(
+                    child: TabBarView(
+                      children: [
+                        // Setiap tab sekarang memiliki scrolling-nya sendiri
+                        _buildInfoTab(student),
+                        _buildSkillsTab(student),
+                        _buildWeaponTab(student, context),
+                        _buildProfileTab(student),
+                      ],
+                    ),
+                  ),
                 ],
               ),
-
-              // --- 4. KONTEN TAB ---
-              SizedBox(
-                // Ini penting untuk TabBarView di dalam SingleChildScrollView
-                height: 800, // Beri tinggi yang cukup, atau gunakan cara yang lebih dinamis
-                child: TabBarView(
-                  // shrinkWrap: true, // Non-aktifkan scrolling di dalam TabBarView
-                  // physics: const NeverScrollableScrollPhysics(),
-                  children: [
-                    // Setiap tab memanggil widget-nya sendiri
-                    _buildInfoTab(student),
-                    _buildSkillsTab(student),
-                    _buildWeaponTab(student, context),
-                    _buildProfileTab(student),
-                  ],
-                ),
-              ),
-            ],
+            ),
           ),
-        ),
-      ),
-    );
-  }
-
-  // --- WIDGET HELPER UNTUK TATA LETAK ---
-
-  Widget _buildHeaderImage(Student student) {
-    return Image.network(
-      student.portraitUrl,
-      height: 250,
-      width: double.infinity,
-      fit: BoxFit.cover,
-      errorBuilder: (context, error, stackTrace) =>
-          Container(height: 250, color: Colors.grey[800], child: const Icon(Icons.error)),
-      loadingBuilder: (context, child, progress) =>
-          progress == null ? child : Container(height: 250, alignment: Alignment.center, child: const CircularProgressIndicator()),
-    );
-  }
-
-  Widget _buildBasicInfo(Student student, BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            student.name,
-            style: Theme.of(context).textTheme.headlineMedium?.copyWith(color: Colors.white),
-          ),
-          Text(
-            '${student.school} / ${student.club}',
-            style: Theme.of(context).textTheme.titleMedium?.copyWith(color: Colors.grey[400]),
+          
+          // --- 2. GAMBAR LOBBY (DI KANAN) ---
+          Expanded(
+            flex: 4, // Beri 40% lebar untuk gambar
+            child: _buildLobbyImage(student),
           ),
         ],
       ),
     );
   }
 
-  // --- WIDGET UNTUK SETIAP TAB ---
+  // Widget untuk menampilkan gambar lobby
+  Widget _buildLobbyImage(Student student) {
+    // --- PERBAIKAN: Gunakan Align dan BoxFit.contain ---
+    // Ini akan menempatkan gambar di bawah dan memastikannya tidak terpotong
+    return Align(
+      alignment: Alignment.bottomCenter,
+      child: Image.network(
+        student.lobbyUrl,
+        fit: BoxFit.contain, // Pastikan seluruh tubuh karakter terlihat
+        
+        errorBuilder: (context, error, stackTrace) {
+          // Fallback ke portrait jika lobby gagal
+          return Align(
+            alignment: Alignment.bottomCenter,
+            child: Image.network(
+              student.portraitUrl,
+              fit: BoxFit.contain,
+              errorBuilder: (context, error, stackTrace) =>
+                  Container(color: Colors.grey[800], child: const Icon(Icons.error)),
+            ),
+          );
+        },
+        loadingBuilder: (context, child, progress) =>
+            progress == null ? child : const Center(child: CircularProgressIndicator()),
+      ),
+    );
+  }
 
-  /// TAB 1: INFO (Atribut & Statistik)
+  // Widget untuk info dasar (Nama, Sekolah)
+  Widget _buildBasicInfo(Student student, BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          student.name,
+          style: Theme.of(context).textTheme.headlineMedium?.copyWith(color: Colors.white, fontWeight: FontWeight.bold),
+        ),
+        Text(
+          '${student.school} / ${student.club}',
+          style: Theme.of(context).textTheme.titleMedium?.copyWith(color: Colors.grey[400]),
+        ),
+      ],
+    );
+  }
+  
+  // --- KONTEN TAB (SEKARANG DENGAN SCROLL INTERNAL) ---
+
+  /// TAB 1: INFO
   Widget _buildInfoTab(Student student) {
+    // Tambahkan SingleChildScrollView di DALAM tab
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16.0),
       child: Column(
@@ -129,9 +158,9 @@ class StudentDetailScreen extends StatelessWidget {
           _buildInfoRow('Max Heal', student.maxHeal.toString()),
 
           _buildSectionTitle('Equipment'),
-          _buildInfoRow('Item 1', student.equipment[0]),
-          _buildInfoRow('Item 2', student.equipment[1]),
-          _buildInfoRow('Item 3', student.equipment[2]),
+          _buildInfoRow('Item 1', student.equipment.isNotEmpty ? student.equipment[0] : 'N/A'),
+          _buildInfoRow('Item 2', student.equipment.length > 1 ? student.equipment[1] : 'N/A'),
+          _buildInfoRow('Item 3', student.equipment.length > 2 ? student.equipment[2] : 'N/A'),
         ],
       ),
     );
@@ -139,8 +168,9 @@ class StudentDetailScreen extends StatelessWidget {
 
   /// TAB 2: SKILLS
   Widget _buildSkillsTab(Student student) {
+    // ListView sudah bisa scroll
     return ListView.builder(
-      padding: const EdgeInsets.all(8.0),
+      padding: const EdgeInsets.all(16.0),
       itemCount: student.skills.length,
       itemBuilder: (context, index) {
         return SkillCard(skill: student.skills[index]);
@@ -150,8 +180,9 @@ class StudentDetailScreen extends StatelessWidget {
 
   /// TAB 3: WEAPON
   Widget _buildWeaponTab(Student student, BuildContext context) {
+    // Tambahkan SingleChildScrollView
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(16.0),
+      padding: const EdgeInsets.all(16.0), 
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -173,6 +204,7 @@ class StudentDetailScreen extends StatelessWidget {
   /// TAB 4: PROFILE
   Widget _buildProfileTab(Student student) {
     final profile = student.profile;
+    // Tambahkan SingleChildScrollView
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16.0),
       child: Column(
@@ -196,7 +228,7 @@ class StudentDetailScreen extends StatelessWidget {
     );
   }
 
-  // --- WIDGET HELPER KECIL ---
+  // --- WIDGET HELPER KECIL (Tidak Berubah) ---
 
   Widget _buildSectionTitle(String title) {
     return Padding(
@@ -213,9 +245,21 @@ class StudentDetailScreen extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 4.0),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title, style: const TextStyle(color: Colors.grey)),
-          Text(value, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
+          Flexible(
+            flex: 2,
+            child: Text(title, style: const TextStyle(color: Colors.grey)),
+          ),
+          const SizedBox(width: 10),
+          Flexible(
+            flex: 3,
+            child: Text(
+              value,
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+              textAlign: TextAlign.end,
+            ),
+          ),
         ],
       ),
     );
@@ -237,8 +281,7 @@ class StudentDetailScreen extends StatelessWidget {
   }
 }
 
-/// WIDGET KUSTOM UNTUK MENAMPILKAN SKILL
-/// (Dipisah agar rapi)
+/// WIDGET KUSTOM UNTUK MENAMPILKAN SKILL (Tidak Berubah)
 class SkillCard extends StatelessWidget {
   final Skill skill;
   const SkillCard({super.key, required this.skill});
@@ -276,7 +319,6 @@ class SkillCard extends StatelessWidget {
                   const SizedBox(height: 8),
                   Text(skill.description),
                   const SizedBox(height: 8),
-                  // Menampilkan data penskalaan (scaling)
                   Text('Level: ${skill.parameters.join(" / ")}'),
                 ],
               ),

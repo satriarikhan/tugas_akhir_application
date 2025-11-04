@@ -1,5 +1,5 @@
-// lib/model/student_model.dart (SUDAH DIPERBAIKI)
-
+// lib/model/student_model.dart
+// (Sesuaikan path import Anda jika perlu)
 import 'package:tugas_akhir_application/model/profile_model.dart';
 import 'package:tugas_akhir_application/model/skill_model.dart';
 import 'package:tugas_akhir_application/model/weapon_model.dart';
@@ -9,32 +9,29 @@ class Student {
   final String name;
   final String school;
   final String club;
-  final String squadType; // Main / Support
-  final String tacticRole; // DamageDealer / Tank / Healer / Supporter / T.S.
+  final String squadType; 
+  final String tacticRole; 
   
-  // --- Atribut Dasar ---
-  final String armorType; // Light / Heavy / Special
-  final String bulletType; // Explosive / Piercing / Mystic
-  final String weaponType; // SR, AR, HG, SMG, GL, MT, RG, SG, FT
-  final String terrainStreet; // Rank: S, A, B, C, D
-  final String terrainOutdoor; // Rank
-  final String terrainIndoor; // Rank
+  final String armorType;
+  final String bulletType;
+  final String weaponType; 
+  final String terrainStreet;
+  final String terrainOutdoor;
+  final String terrainIndoor;
   
-  // --- Relasi Model Lain ---
   final List<Skill> skills;
   final Weapon weapon;
   final Profile profile;
-  final List<String> equipment; // Ini bisa jadi List<Item> jika Item punya data sendiri
+  final List<String> equipment; 
 
-  // --- Statistik (Contoh Sederhana) ---
   final int maxHp;
   final int maxAtk;
   final int maxDef;
   final int maxHeal;
 
-  // --- URL Gambar (buatan) ---
   final String iconUrl;
   final String portraitUrl;
+  final String lobbyUrl; // <-- BARU: Tambahkan baris ini
 
   Student({
     required this.id,
@@ -59,19 +56,18 @@ class Student {
     required this.maxHeal,
     required this.iconUrl,
     required this.portraitUrl,
+    required this.lobbyUrl, // <-- BARU: Tambahkan baris ini
   });
 
   factory Student.fromJson(Map<String, dynamic> json) {
     String studentId = json['Id'].toString();
     
-    // Amankan parsing list
     var skillList = json['Skills'] as List?;
     List<Skill> studentSkills = skillList?.map((s) => Skill.fromJson(s)).toList() ?? [];
 
     var equipList = json['Equipment'] as List?;
     List<String> studentEquipment = equipList?.map((e) => e.toString()).toList() ?? [];
 
-    // --- PERBAIKAN: AKSES STATS DENGAN AMAN ---
     var statsMap = json['Stats'] as Map<String, dynamic>?;
     var maxStatsMap = statsMap?['MaxStats'] as Map<String, dynamic>?;
     var level100StatsMap = maxStatsMap?['100'] as Map<String, dynamic>?;
@@ -81,8 +77,6 @@ class Student {
     int def = level100StatsMap?['DefensePower'] ?? 0;
     int heal = level100StatsMap?['HealPower'] ?? 0;
     
-    // --- PERBAIKAN: UMPANKAN MAP KOSONG JIKA DATA NULL ---
-    // Ini mencegah error 'null['key']' di model Weapon atau Profile
     var weaponData = json['Weapon'] as Map<String, dynamic>? ?? {};
     var profileData = json['Profile'] as Map<String, dynamic>? ?? {};
 
@@ -102,8 +96,8 @@ class Student {
       terrainIndoor: json['Terrain']?['Indoor'] ?? 'D',
       
       skills: studentSkills,
-      weapon: Weapon.fromJson(weaponData), // Umpan data yang aman
-      profile: Profile.fromJson(profileData), // Umpan data yang aman
+      weapon: Weapon.fromJson(weaponData), 
+      profile: Profile.fromJson(profileData), 
       equipment: studentEquipment,
 
       maxHp: hp,
@@ -113,6 +107,9 @@ class Student {
 
       iconUrl: 'https://raw.githubusercontent.com/SchaleDB/SchaleDB/main/images/student/icon/$studentId.webp',
       portraitUrl: 'https://schaledb.s3.ap-northeast-2.amazonaws.com/images/student/portrait/$studentId.webp',
+      
+      // <-- BARU: Tambahkan URL gambar lobby ---
+      lobbyUrl: 'https://schaledb.s3.ap-northeast-2.amazonaws.com/images/student/lobby/$studentId.webp',
     );
   }
 }
