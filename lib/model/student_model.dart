@@ -65,45 +65,43 @@ class Student {
   });
 
   factory Student.fromJson(Map<String, dynamic> json) {
-    String studentId = json['Id'].toString();
+  String studentId = json['Id'].toString();
+  
+  var skillList = json['Skills'] as List;
+  List<Skill> studentSkills = skillList.map((s) => Skill.fromJson(s)).toList();
+
+  var equipList = json['Equipment'] as List;
+  List<String> studentEquipment = equipList.map((e) => e.toString()).toList();
+
+  return Student(
+    id: json['Id'],
+    name: json['Name'] ?? 'Unknown', // <-- Tambahkan ??
+    school: json['School'] ?? 'N/A',
+    club: json['Club'] ?? 'N/A',
+    squadType: json['SquadType'] ?? 'N/A', // <-- Tambahkan ??
+    tacticRole: json['TacticRole'] ?? 'N/A', // <-- Tambahkan ??
+    armorType: json['ArmorType'] ?? 'N/A', // <-- Tambahkan ??
+    bulletType: json['BulletType'] ?? 'N/A', // <-- Tambahkan ??
+    weaponType: json['WeaponType'] ?? 'N/A', // <-- Tambahkan ??
     
-    // Parsing list skill
-    var skillList = json['Skills'] as List;
-    List<Skill> studentSkills = skillList.map((s) => Skill.fromJson(s)).toList();
+    // Terrain sepertinya aman karena strukturnya, tapi bisa juga dicek
+    terrainStreet: json['Terrain']?['Street'] ?? 'D',
+    terrainOutdoor: json['Terrain']?['Outdoor'] ?? 'D',
+    terrainIndoor: json['Terrain']?['Indoor'] ?? 'D',
+    
+    skills: studentSkills,
+    weapon: Weapon.fromJson(json['Weapon']),
+    profile: Profile.fromJson(json['Profile']),
+    equipment: studentEquipment,
 
-    // Parsing equipment
-    var equipList = json['Equipment'] as List;
-    List<String> studentEquipment = equipList.map((e) => e.toString()).toList();
+    // Ambil stats (asumsi struktur ini selalu ada)
+    maxHp: json['Stats']['MaxStats']['100']['MaxHP'],
+    maxAtk: json['Stats']['MaxStats']['100']['AttackPower'],
+    maxDef: json['Stats']['MaxStats']['100']['DefensePower'],
+    maxHeal: json['Stats']['MaxStats']['100']['HealPower'],
 
-    return Student(
-      id: json['Id'],
-      name: json['Name'],
-      school: json['School'] ?? 'N/A',
-      club: json['Club'] ?? 'N/A',
-      squadType: json['SquadType'],
-      tacticRole: json['TacticRole'],
-      armorType: json['ArmorType'],
-      bulletType: json['BulletType'],
-      weaponType: json['WeaponType'],
-      terrainStreet: json['Terrain']['Street'],
-      terrainOutdoor: json['Terrain']['Outdoor'],
-      terrainIndoor: json['Terrain']['Indoor'],
-      
-      // Menggunakan model yang sudah kita pisah
-      skills: studentSkills,
-      weapon: Weapon.fromJson(json['Weapon']),
-      profile: Profile.fromJson(json['Profile']),
-      equipment: studentEquipment,
-
-      // Ambil stats level 100
-      maxHp: json['Stats']['MaxStats']['100']['MaxHP'],
-      maxAtk: json['Stats']['MaxStats']['100']['AttackPower'],
-      maxDef: json['Stats']['MaxStats']['100']['DefensePower'],
-      maxHeal: json['Stats']['MaxStats']['100']['HealPower'],
-
-      // URL Gambar
-      iconUrl: 'https://raw.githubusercontent.com/SchaleDB/SchaleDB/main/images/student/icon/$studentId.webp',
-      portraitUrl: 'https://schaledb.s3.ap-northeast-2.amazonaws.com/images/student/portrait/$studentId.webp',
-    );
-  }
+    iconUrl: 'https://raw.githubusercontent.com/SchaleDB/SchaleDB/main/images/student/icon/$studentId.webp',
+    portraitUrl: 'https://schaledb.s3.ap-northeast-2.amazonaws.com/images/student/portrait/$studentId.webp',
+  );
+}
 }
