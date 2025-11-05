@@ -1,80 +1,90 @@
-// lib/model/weapon_model.dart (GANTI SEMUA ISINYA DENGAN INI)
+// lib/model/weapon_model.dart (SUDAH DIPERBAIKI)
 
 class Weapon {
   final String name;
   final String description;
-  final String weaponType; // SR, AR, dll. (redundan, tapi ada di JSON)
-  final String imagePath; // Path gambar senjata
+  final String imagePath; // URL gambar senjata
+  final String weaponType; // HG, SR, AR, dll. (untuk "Exclusive Weapon / HG")
   
-  // Statistik tambahan dari senjata
-  final String stat1Type; // cth: "AttackPower"
-  final int stat1Value;    // cth: 2000
-  final String stat2Type; // cth: "MaxHP"
-  final int stat2Value;    // cth: 15000
+  // Statistik senjata
+  final String stat1Type;
+  final int stat1Value;
+  final String stat2Type;
+  final int stat2Value;
 
   Weapon({
     required this.name,
     required this.description,
-    required this.weaponType,
     required this.imagePath,
+    required this.weaponType,
     required this.stat1Type,
     required this.stat1Value,
     required this.stat2Type,
     required this.stat2Value,
   });
 
-  factory Weapon.fromJson(Map<String, dynamic> json) {
-    // 'json' bisa jadi {} jika tidak ada data weapon
+  factory Weapon.fromJson(Map<String, dynamic> json, String weaponType) {
+    String weaponName = json['Name'] ?? 'Unknown Weapon';
+    String weaponDesc = json['Desc'] ?? 'No description available.';
     
-    // --- PERBAIKAN UTAMA: Tangani 'Stats' yang null ---
-    // Jika json['Stats'] null, kita gunakan map kosong {} sebagai default
-    var stats = json['Stats'] as Map<String, dynamic>? ?? {}; 
+    // Default ke 'SR' jika tidak ada tipe senjata (contoh: Nonomi)
+    String weaponType = json['WeaponType'] ?? 'SR'; 
     
-    String stat1Type = 'N/A';
-    int stat1Value = 0;
-    // Ambil list 'Type' dan 'Value' dari 'stats' (yang sekarang dijamin tidak null)
-    var typeList = stats['Type'] as List?;
-    var valueList = stats['Value'] as List?;
+    // --- PERBAIKAN URL GAMBAR DI SINI ---
+    // Ganti server S3 ke server GitHub yang sudah pasti bisa
+    String weaponImageId = json['Image'] ?? 'default'; // Ambil Image ID
+    String weaponImageUrl = 
+        'https://raw.githubusercontent.com/SchaleDB/SchaleDB/main/images/weapon/$weaponImageId.webp';
+    // --- AKHIR PERBAIKAN URL GAMBAR ---
 
-    // Cek typeList
-    if (typeList != null && typeList.isNotEmpty) {
-      stat1Type = typeList[0] ?? 'N/A';
-    }
-    
-    // Cek valueList
-    if (valueList != null && valueList.isNotEmpty) {
-      var valueList1 = valueList[0] as List?;
-      if (valueList1 != null && valueList1.isNotEmpty) {
-        // Ambil stat level terakhir dan pastikan tipenya int
-        stat1Value = (valueList1.last ?? 0) as int;
+    // --- PERBAIKAN PEMBACAAN STATISTIK DI SINI ---
+    // Inisialisasi default
+    String stat1Type = 'ATK';
+    int stat1Value = 0;
+    String stat2Type = 'Max HP';
+    int stat2Value = 0;
+
+    var stats = json['WeaponStats'] as List?;
+    if (stats != null && stats.isNotEmpty) {
+      // Ambil stat pertama (biasanya AttackPower)
+      var stat0 = stats[0] as Map<String, dynamic>?;
+      if (stat0 != null) {
+        stat1Type = _mapStatKeyToDisplayName(stat0['AttackPower'] != null ? 'AttackPower' : (stat0['MaxHP'] != null ? 'MaxHP' : 'CritChance'));
+        stat1Value = stat0['AttackPower'] ?? stat0['MaxHP'] ?? stat0['CritChance'] ?? 0;
+      }
+      
+      // Ambil stat kedua (biasanya MaxHP atau CritChance)
+      if (stats.length > 1) {
+        var stat1 = stats[1] as Map<String, dynamic>?;
+        if (stat1 != null) {
+          stat2Type = _mapStatKeyToDisplayName(stat1['MaxHP'] != null ? 'MaxHP' : (stat1['AttackPower'] != null ? 'AttackPower' : 'CritChance'));
+          stat2Value = stat1['MaxHP'] ?? stat1['AttackPower'] ?? stat1['CritChance'] ?? 0;
+        }
       }
     }
-  
-    String stat2Type = 'N/A';
-    int stat2Value = 0;
-    
-    // Cek elemen kedua
-    if (typeList != null && typeList.length > 1) {
-      stat2Type = typeList[1] ?? 'N/A';
-    }
-    
-    if (valueList != null && valueList.length > 1) {
-       var valueList2 = valueList[1] as List?;
-       if (valueList2 != null && valueList2.isNotEmpty) {
-          // Ambil stat level terakhir dan pastikan tipenya int
-          stat2Value = (valueList2.last ?? 0) as int;
-       }
-    }
-  
+    // --- AKHIR PERBAIKAN STATISTIK ---
+
     return Weapon(
-      name: json['Name'] ?? 'No Weapon',
-      description: json['Desc'] ?? '',
-      weaponType: json['Type'] ?? 'N/A', 
-      imagePath: 'https://schaledb.s3.ap-northeast-2.amazonaws.com/images/weapon/${json['ImagePath'] ?? 'default'}.webp',
+      name: weaponName,
+      description: weaponDesc,
+      imagePath: weaponImageUrl, // Gunakan URL yang sudah diperbaiki
+      weaponType: weaponType,
       stat1Type: stat1Type,
       stat1Value: stat1Value,
       stat2Type: stat2Type,
       stat2Value: stat2Value,
     );
+  }
+
+  // Helper method untuk memetakan kunci JSON ke nama yang mudah dibaca
+  static String _mapStatKeyToDisplayName(String key) {
+    switch (key) {
+      case 'AttackPower': return 'ATK';
+      case 'MaxHP': return 'Max HP';
+      case 'DefensePower': return 'DEF';
+      case 'CritChance': return 'Crit Chance';
+      case 'HealPower': return 'Heal Power';
+      default: return key;
+    }
   }
 }

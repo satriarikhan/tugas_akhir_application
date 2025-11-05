@@ -24,10 +24,25 @@ class Student {
   final Profile profile;
   final List<String> equipment;
 
+  // --- PERBAIKAN: Tambahkan SEMUA statistik ---
   final int maxHp;
   final int maxAtk;
   final int maxDef;
   final int maxHeal;
+  final int accuracy;
+  final int evasion;
+  final int crit;
+  final int critRes;
+  final int critDmg;
+  final int critDmgRes;
+  final int stability;
+  final int normalAtkRange;
+  final int ccPower;
+  final int ccRes;
+  final int defensePen;
+  final int magCount;
+  final int magCost;
+  // --- AKHIR PERBAIKAN ---
 
   final String iconUrl;
   final String portraitUrl;
@@ -50,17 +65,32 @@ class Student {
     required this.weapon,
     required this.profile,
     required this.equipment,
+    // --- PERBAIKAN: Tambahkan di constructor ---
     required this.maxHp,
     required this.maxAtk,
     required this.maxDef,
     required this.maxHeal,
+    required this.accuracy,
+    required this.evasion,
+    required this.crit,
+    required this.critRes,
+    required this.critDmg,
+    required this.critDmgRes,
+    required this.stability,
+    required this.normalAtkRange,
+    required this.ccPower,
+    required this.ccRes,
+    required this.defensePen,
+    required this.magCount,
+    required this.magCost,
+    // --- AKHIR PERBAIKAN ---
     required this.iconUrl,
     required this.portraitUrl,
     required this.lobbyUrl,
   });
 
   factory Student.fromJson(Map<String, dynamic> json) {
-    String studentId = json['Id'].toString();
+    String studentId = json['Id'].toString(); 
 
     var skillList = json['Skills'] as List?;
     List<Skill> studentSkills =
@@ -72,18 +102,32 @@ class Student {
 
     var statsMap = json['Stats'] as Map<String, dynamic>?;
     var maxStatsMap = statsMap?['MaxStats'] as Map<String, dynamic>?;
-    var level100StatsMap = maxStatsMap?['100'] as Map<String, dynamic>?;
+    // Ambil statistik Level 100
+    var level100StatsMap = maxStatsMap?['100'] as Map<String, dynamic>? ?? {};
 
-    int hp = level100StatsMap?['MaxHP'] ?? 0;
-    int atk = level100StatsMap?['AttackPower'] ?? 0;
-    int def = level100StatsMap?['DefensePower'] ?? 0;
-    int heal = level100StatsMap?['HealPower'] ?? 0;
+    // --- PERBAIKAN: Ambil SEMUA statistik ---
+    int hp = level100StatsMap['MaxHP'] ?? 0;
+    int atk = level100StatsMap['AttackPower'] ?? 0;
+    int def = level100StatsMap['DefensePower'] ?? 0;
+    int heal = level100StatsMap['HealPower'] ?? 0;
+    int accuracy = level100StatsMap['Accuracy'] ?? 0;
+    int evasion = level100StatsMap['Evasion'] ?? 0;
+    int crit = level100StatsMap['CriticalPoint'] ?? 0;
+    int critRes = level100StatsMap['CriticalPointResist'] ?? 0;
+    int critDmg = level100StatsMap['CriticalDamage'] ?? 20000; // Default 200%
+    int critDmgRes = level100StatsMap['CriticalDamageResist'] ?? 0;
+    int stability = level100StatsMap['Stability'] ?? 0;
+    int normalAtkRange = level100StatsMap['Range'] ?? 0;
+    int ccPower = level100StatsMap['OppressionPower'] ?? 0;
+    int ccRes = level100StatsMap['OppressionResist'] ?? 0;
+    int defensePen = level100StatsMap['DefensePenetration'] ?? 0;
+    int magCount = level100StatsMap['AmmoCount'] ?? 0;
+    int magCost = level100StatsMap['AmmoCost'] ?? 0;
+    // --- AKHIR PERBAIKAN ---
 
     var weaponData = json['Weapon'] as Map<String, dynamic>? ?? {};
-    var profileData = json['Profile'] as Map<String, dynamic>? ?? {};
-
-    // Amankan nama untuk URL (mengganti spasi dengan '_')
-    String studentName = (json['Name'] as String?)?.replaceAll(' ', '_') ?? '';
+    var profileData = json; 
+    String weaponType = json['WeaponType'] ?? 'N/A';
 
     return Student(
       id: json['Id'],
@@ -94,34 +138,41 @@ class Student {
       tacticRole: json['TacticRole'] ?? 'N/A',
       armorType: json['ArmorType'] ?? 'N/A',
       bulletType: json['BulletType'] ?? 'N/A',
-      weaponType: json['WeaponType'] ?? 'N/A',
+      weaponType: weaponType,
       terrainStreet: json['Terrain']?['Street'] ?? 'D',
       terrainOutdoor: json['Terrain']?['Outdoor'] ?? 'D',
       terrainIndoor: json['Terrain']?['Indoor'] ?? 'D',
       skills: studentSkills,
-      weapon: Weapon.fromJson(weaponData),
+      weapon: Weapon.fromJson(weaponData, weaponType),
       profile: Profile.fromJson(profileData),
       equipment: studentEquipment,
 
+      // --- PERBAIKAN: Teruskan semua statistik ---
       maxHp: hp,
       maxAtk: atk,
       maxDef: def,
       maxHeal: heal,
+      accuracy: accuracy,
+      evasion: evasion,
+      crit: crit,
+      critRes: critRes,
+      critDmg: critDmg,
+      critDmgRes: critDmgRes,
+      stability: stability,
+      normalAtkRange: normalAtkRange,
+      ccPower: ccPower,
+      ccRes: ccRes,
+      defensePen: defensePen,
+      magCount: magCount,
+      magCost: magCost,
+      // --- AKHIR PERBAIKAN ---
 
-      // URL Ikon (ini sudah benar menggunakan $studentId)
       iconUrl:
           'https://raw.githubusercontent.com/SchaleDB/SchaleDB/main/images/student/icon/$studentId.webp',
-
-      // --- PERBAIKAN DI SINI ---
-      // Gunakan 'ImagePath' dari JSON, bukan $studentId
       portraitUrl:
-          'https://schaledb.s3.ap-northeast-2.amazonaws.com/images/student/portrait/${json['ImagePath']}.webp',
-
-      // --- PERBAIKAN DI SINI ---
-      // Gunakan 'Lobby_' + 'Name' dari JSON
+          'https://raw.githubusercontent.com/SchaleDB/SchaleDB/main/images/student/portrait/$studentId.webp',
       lobbyUrl:
-          'https://schaledb.s3.ap-northeast-2.amazonaws.com/images/student/lobby/Lobby_$studentName.webp',
-      // --- AKHIR PERBAIKAN ---
+          'https://schaledb.s3.ap-northeast-2.amazonaws.com/images/student/lobby/Lobby_${json['ImagePath']}.webp',
     );
   }
 }
