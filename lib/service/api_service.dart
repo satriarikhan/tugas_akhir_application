@@ -15,7 +15,6 @@ class ApiService {
       if (response.statusCode == 200) {
         final String jsonBody = utf8.decode(response.bodyBytes);
         
-        // Parsing JSON top-level (yang merupakan List)
         List<dynamic> jsonList = json.decode(jsonBody);
         
         // Ubah setiap item di list menjadi objek Student

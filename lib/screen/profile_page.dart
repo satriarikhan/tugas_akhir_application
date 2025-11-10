@@ -1,11 +1,11 @@
-// lib/screen/profile_page.dart
-// (FILE DI-AKTIFKAN DARI KOMENTAR ANDA + PENYIMPANAN GAMBAR)
-
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'login_page.dart'; // Import login page
+import 'package:tugas_akhir_application/screen/favorite_student_screen.dart';
+import 'package:tugas_akhir_application/screen/konversi_page.dart';
+import 'package:tugas_akhir_application/screen/saran_page.dart'; // <-- IMPORT BARU
+import 'login_page.dart';
 import 'package:image_picker/image_picker.dart';
-import 'dart:io';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -16,8 +16,8 @@ class ProfilePage extends StatefulWidget {
 
 class _ProfilePageState extends State<ProfilePage> {
   String _username = '...';
-  File? _profileImage; // File untuk gambar profil
-  String? _profileImagePath; // Path gambar yang tersimpan
+  File? _profileImage;
+  String? _profileImagePath;
 
   @override
   void initState() {
@@ -25,9 +25,9 @@ class _ProfilePageState extends State<ProfilePage> {
     _loadProfileData();
   }
 
-  // Ambil username DAN path gambar dari session
   void _loadProfileData() async {
     final prefs = await SharedPreferences.getInstance();
+    if (!mounted) return;
     setState(() {
       _username = prefs.getString('username') ?? 'Pengguna';
       _profileImagePath = prefs.getString('profileImagePath');
@@ -36,34 +36,30 @@ class _ProfilePageState extends State<ProfilePage> {
       }
     });
   }
-  
-  // Fungsi ambil gambar DAN SIMPAN path
+
   Future<void> _pickImage() async {
     final picker = ImagePicker();
     final pickedFile = await picker.pickImage(source: ImageSource.gallery);
 
     if (pickedFile != null) {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('profileImagePath', pickedFile.path);
       setState(() {
         _profileImage = File(pickedFile.path);
       });
-      // Simpan path ke SharedPreferences
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setString('profileImagePath', pickedFile.path);
     }
   }
 
-  // Fungsi logout
   void _logout() async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool('isLoggedIn', false); // Hapus session
+    await prefs.setBool('isLoggedIn', false);
     await prefs.remove('username');
-    await prefs.remove('profileImagePath'); // Hapus path gambar
+    await prefs.remove('profileImagePath');
 
-    // Kembali ke halaman login
     if (!mounted) return;
     Navigator.of(context).pushAndRemoveUntil(
       MaterialPageRoute(builder: (context) => const LoginPage()),
-      (Route<dynamic> route) => false, // Hapus semua halaman sebelumnya
+      (Route<dynamic> route) => false,
     );
   }
 
@@ -72,32 +68,34 @@ class _ProfilePageState extends State<ProfilePage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Profil Pengguna'),
-        automaticallyImplyLeading: false, // Tidak perlu tombol kembali
+        automaticallyImplyLeading: false,
       ),
-      body: Center(
+      body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(24.0),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              // Gambar Profil
+              const SizedBox(height: 20),
               GestureDetector(
                 onTap: _pickImage,
                 child: CircleAvatar(
                   radius: 60,
                   backgroundColor: Colors.grey[800],
-                  backgroundImage: _profileImage != null ? FileImage(_profileImage!) : null,
-                  child: _profileImage == null 
-                    ? Icon(Icons.person, size: 50, color: Colors.grey[400])
-                    : null,
+                  backgroundImage: _profileImage != null
+                      ? FileImage(_profileImage!)
+                      : null,
+                  child: _profileImage == null
+                      ? Icon(Icons.person, size: 50, color: Colors.grey[400])
+                      : null,
                 ),
               ),
               const SizedBox(height: 10),
               Text(
-                '(Ketuk gambar untuk mengganti)', 
-                style: TextStyle(color: Colors.grey[600])
+                '(Ketuk gambar untuk mengganti)',
+                style: TextStyle(color: Colors.grey[600]),
               ),
-              
+
               const SizedBox(height: 30),
               Text(
                 'Selamat Datang,',
@@ -106,10 +104,52 @@ class _ProfilePageState extends State<ProfilePage> {
               Text(
                 _username,
                 style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                  fontWeight: FontWeight.bold
+                  fontWeight: FontWeight.bold,
                 ),
               ),
-              const SizedBox(height: 40),
+              const SizedBox(height: 30),
+              const Divider(),
+
+              ListTile(
+                leading: Icon(Icons.favorite, color: Colors.pink[300]),
+                title: const Text('Favorite Students'),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const FavoriteStudentScreen(),
+                    ),
+                  );
+                },
+              ),
+              ListTile(
+                leading: Icon(Icons.sync_alt, color: Colors.blue[300]),
+                title: const Text('Pengaturan Konversi'),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const KonversiPage(),
+                    ),
+                  );
+                },
+              ),
+              ListTile(
+                leading: Icon(Icons.edit, color: Colors.grey[400]),
+                title: const Text('Kesan & Pesan'),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => SaranPage()),
+                  );
+                },
+              ),
+              const Divider(),
+
+              const SizedBox(height: 20),
               ElevatedButton.icon(
                 onPressed: _logout,
                 icon: const Icon(Icons.logout),
@@ -119,7 +159,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   foregroundColor: Colors.white,
                   minimumSize: const Size(double.infinity, 50),
                 ),
-              )
+              ),
             ],
           ),
         ),

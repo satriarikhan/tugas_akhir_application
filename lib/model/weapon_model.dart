@@ -1,5 +1,3 @@
-// lib/model/weapon_model.dart (SUDAH DIPERBAIKI)
-
 class Weapon {
   final String name;
   final String description;
@@ -26,18 +24,13 @@ class Weapon {
   factory Weapon.fromJson(Map<String, dynamic> json, String weaponType) {
     String weaponName = json['Name'] ?? 'Unknown Weapon';
     String weaponDesc = json['Desc'] ?? 'No description available.';
-    
-    // Default ke 'SR' jika tidak ada tipe senjata (contoh: Nonomi)
     String weaponType = json['WeaponType'] ?? 'SR'; 
     
-    // --- PERBAIKAN URL GAMBAR DI SINI ---
-    // Ganti server S3 ke server GitHub yang sudah pasti bisa
+    
     String weaponImageId = json['Image'] ?? 'default'; // Ambil Image ID
     String weaponImageUrl = 
         'https://raw.githubusercontent.com/SchaleDB/SchaleDB/main/images/weapon/$weaponImageId.webp';
-    // --- AKHIR PERBAIKAN URL GAMBAR ---
 
-    // --- PERBAIKAN PEMBACAAN STATISTIK DI SINI ---
     // Inisialisasi default
     String stat1Type = 'ATK';
     int stat1Value = 0;
@@ -62,12 +55,12 @@ class Weapon {
         }
       }
     }
-    // --- AKHIR PERBAIKAN STATISTIK ---
+    
 
     return Weapon(
       name: weaponName,
       description: weaponDesc,
-      imagePath: weaponImageUrl, // Gunakan URL yang sudah diperbaiki
+      imagePath: weaponImageUrl, 
       weaponType: weaponType,
       stat1Type: stat1Type,
       stat1Value: stat1Value,

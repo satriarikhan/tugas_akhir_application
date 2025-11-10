@@ -1,5 +1,3 @@
-// lib/model/skill_model.dart (SUDAH DIPERBAIKI)
-
 class Skill {
   final String skillType; // EX, Basic, Passive, Sub
   final String name;
@@ -28,24 +26,22 @@ class Skill {
       skillCost = (json['Cost'] as List)[0] ?? 0;
     }
 
-    // --- PERBAIKAN UTAMA DI SINI ---
     String skillType = json['SkillType'] ?? 'N/A';
     String skillName = json['Name'] ?? 'No Name';
     String skillDesc = json['Desc'] ?? ''; // Deskripsi dari API
     
-    // Jika tipenya 'autoattack', ganti nama dan deskripsi secara manual
     if (skillType == 'autoattack') {
-      skillName = 'Normal Attack'; // Perbaikan untuk "No Name"
-      skillDesc = 'Deals 100% damage to one enemy.'; // Perbaikan untuk deskripsi
-      skillParams = []; // Serangan normal tidak punya level
+      skillName = 'Normal Attack'; 
+      skillDesc = 'Deals 100% damage to one enemy.'; 
+      skillParams = []; 
     }
-    // --- AKHIR PERBAIKAN ---
+    
 
     return Skill(
       skillType: skillType, 
-      name: skillName, // Gunakan nama yang sudah diperbaiki
-      description: skillDesc, // Gunakan deskripsi yang sudah diperbaiki
-      parameters: skillParams, // Gunakan parameter yang sudah diperbaiki
+      name: skillName, 
+      description: skillDesc, 
+      parameters: skillParams,
       cost: skillCost, 
       
       iconUrl:

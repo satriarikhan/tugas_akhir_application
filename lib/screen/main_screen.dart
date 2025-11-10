@@ -1,30 +1,21 @@
-// lib/screen/main_screen.dart
-// (FILE BARU)
-
 import 'package:flutter/material.dart';
 import 'package:tugas_akhir_application/features/server_reset_timer.dart';
 import 'package:tugas_akhir_application/screen/student_screen.dart';
-import 'package:tugas_akhir_application/screen/topup_page.dart'; // Import halaman top-up
-
-// Import halaman untuk tab
+import 'package:tugas_akhir_application/screen/topup_page.dart';
 import 'package:tugas_akhir_application/screen/profile_page.dart';
-import 'package:tugas_akhir_application/screen/saran_page.dart';
 
 class MainScreen extends StatefulWidget {
-  const MainScreen({super.key});
+  const MainScreen({super.key, required String successMessage});
 
   @override
   State<MainScreen> createState() => _MainScreenState();
 }
 
 class _MainScreenState extends State<MainScreen> {
-  int _selectedIndex = 0; // Index untuk tab yang aktif
-
-  // Daftar halaman/widget yang akan ditampilkan di setiap tab
+  int _selectedIndex = 0;
   static final List<Widget> _widgetOptions = <Widget>[
     const HomeScreen(), // Halaman Home (yang berisi menu)
     ProfilePage(), // Halaman Profil
-    SaranPage(), // Halaman Saran
   ];
 
   void _onItemTapped(int index) {
@@ -41,10 +32,6 @@ class _MainScreenState extends State<MainScreen> {
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
           BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profil'),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.edit),
-            label: 'Saran & Kesan',
-          ),
         ],
         currentIndex: _selectedIndex,
         onTap: _onItemTapped,
@@ -52,8 +39,6 @@ class _MainScreenState extends State<MainScreen> {
     );
   }
 }
-
-// --- SEMUA KODE 'HomeScreen' DARI main.dart LAMA PINDAH KE SINI ---
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -63,24 +48,14 @@ class HomeScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('MyArchieve'),
-        automaticallyImplyLeading: false, // Hapus tombol kembali di Home
-        actions: [
-          TextButton.icon(
-            onPressed: () {},
-            icon: const Icon(Icons.language, size: 18),
-            label: const Text('Global'),
-            style: TextButton.styleFrom(foregroundColor: Colors.white),
-          ),
-          IconButton(onPressed: () {}, icon: const Icon(Icons.search)),
-          IconButton(onPressed: () {}, icon: const Icon(Icons.settings)),
-        ],
+        automaticallyImplyLeading: false,
       ),
       body: SingleChildScrollView(
         child: Column(
           children: [
             _buildInfoBanner(),
             _buildResetTimer(),
-            _buildMenu(context), // Ini akan kita modifikasi
+            _buildMenu(context),
           ],
         ),
       ),
@@ -111,13 +86,11 @@ class HomeScreen extends StatelessWidget {
   Widget _buildMenu(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(12.0, 12.0, 12.0, 0),
-      // Ubah widget ini menjadi Column untuk menampung > 1 menu
       child: Column(
         children: [
-          // Menu Student (yang sudah ada)
           MenuCard(
             title: 'Students',
-            description: 'View stats, skills, weapons, equipment and more...',
+            description: 'View student statistics and details here.',
             icon: Icons.people_outline,
             onTap: () {
               Navigator.push(
@@ -128,13 +101,12 @@ class HomeScreen extends StatelessWidget {
               );
             },
           ),
-
-          // --- MENU BARU DITAMBAHKAN DI SINI ---
-          const SizedBox(height: 12), // Beri jarak antar menu
+          const SizedBox(height: 12),
           MenuCard(
             title: 'Top Up',
-            description: 'Beli Pyroxene dan konversi mata uang.',
-            icon: Icons.monetization_on_outlined, // Icon baru
+            description:
+                'You can buy Pyroxene here to upgrade your experience! and feel free to top up anytime.',
+            icon: Icons.monetization_on_outlined,
             onTap: () {
               Navigator.push(
                 context,
@@ -142,7 +114,6 @@ class HomeScreen extends StatelessWidget {
               );
             },
           ),
-          // --- AKHIR PENAMBAHAN ---
         ],
       ),
     );

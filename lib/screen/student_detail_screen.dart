@@ -1,13 +1,60 @@
-// lib/screen/student_detail_screen.dart
 import 'package:flutter/material.dart';
-// Sesuaikan path import Anda jika diperlukan
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tugas_akhir_application/model/skill_model.dart';
 import 'package:tugas_akhir_application/model/student_model.dart';
 
-class StudentDetailScreen extends StatelessWidget {
+class StudentDetailScreen extends StatefulWidget {
   final Student student;
 
   const StudentDetailScreen({super.key, required this.student});
+
+  @override
+  State<StudentDetailScreen> createState() => _StudentDetailScreenState();
+}
+
+class _StudentDetailScreenState extends State<StudentDetailScreen> {
+  // State untuk favorite
+  bool _isFavorite = false;
+  List<String> _favoriteIDs = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _loadFavoriteStatus();
+  }
+
+  /// Memuat status favorite dari SharedPreferences
+  Future<void> _loadFavoriteStatus() async {
+    final prefs = await SharedPreferences.getInstance();
+    // Ambil list ID favorite, atau list kosong jika belum ada
+    _favoriteIDs = prefs.getStringList('favorite_students') ?? [];
+    
+    setState(() {
+      _isFavorite = _favoriteIDs.contains(widget.student.id.toString());
+    });
+  }
+
+  /// Men-toggle status favorite dan menyimpannya
+  Future<void> _toggleFavorite() async {
+    final prefs = await SharedPreferences.getInstance();
+    final String studentId = widget.student.id.toString();
+
+    setState(() {
+      if (_isFavorite) {
+        // Hapus dari list
+        _favoriteIDs.remove(studentId);
+        _isFavorite = false;
+      } else {
+        // Tambahkan ke list
+        _favoriteIDs.add(studentId);
+        _isFavorite = true;
+      }
+    });
+
+    // Simpan list yang sudah diperbarui ke SharedPreferences
+    await prefs.setStringList('favorite_students', _favoriteIDs);
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -18,20 +65,30 @@ class StudentDetailScreen extends StatelessWidget {
           headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
             return <Widget>[
               SliverAppBar(
-                title: Text(student.name),
+                title: Text(widget.student.name),
                 floating: true, 
                 pinned: false,  
                 snap: true,
+                // --- TOMBOL FAVORITE DITAMBAHKAN DI SINI ---
+                actions: [
+                  IconButton(
+                    icon: Icon(
+                      _isFavorite ? Icons.favorite : Icons.favorite_border,
+                      color: _isFavorite ? Colors.pink[300] : Colors.white,
+                    ),
+                    onPressed: _toggleFavorite,
+                  ),
+                ],
               ),
               
               SliverToBoxAdapter(
-                child: _buildPortraitImage(student),
+                child: _buildPortraitImage(widget.student),
               ),
 
               SliverToBoxAdapter(
                 child: Padding(
                   padding: const EdgeInsets.all(16.0),
-                  child: _buildBasicInfo(student, context),
+                  child: _buildBasicInfo(widget.student, context),
                 ),
               ),
 
@@ -60,10 +117,10 @@ class StudentDetailScreen extends StatelessWidget {
           
           body: TabBarView(
             children: [
-              _buildInfoTab(student), // Ini akan diperbarui
-              _buildSkillsTab(student), 
-              _buildWeaponTab(student, context),
-              _buildProfileTab(student), 
+              _buildInfoTab(widget.student), 
+              _buildSkillsTab(widget.student), 
+              _buildWeaponTab(widget.student, context),
+              _buildProfileTab(widget.student), 
             ],
           ),
         ),
@@ -116,7 +173,7 @@ class StudentDetailScreen extends StatelessWidget {
 
   // --- KONTEN TAB ---
 
-  /// TAB 1: INFO (PERBAIKAN UTAMA DI SINI)
+  /// TAB 1: INFO 
   Widget _buildInfoTab(Student student) {
     return SingleChildScrollView( 
       padding: const EdgeInsets.all(16.0),
@@ -142,7 +199,6 @@ class StudentDetailScreen extends StatelessWidget {
             ],
           ),
           
-          // --- PERBAIKAN TATA LETAK STATISTIK ---
           _buildSectionTitle('Statistik (Level 100)'),
           
           _buildStatRow(
@@ -177,7 +233,6 @@ class StudentDetailScreen extends StatelessWidget {
             _buildStatItem('Defense Pen', student.defensePen.toString()),
             _buildStatItem('Mag Count', '${student.magCount} (${student.magCost})')
           ),
-          // --- AKHIR PERBAIKAN ---
 
           _buildSectionTitle('Equipment'),
           _buildInfoRow(
@@ -323,9 +378,7 @@ class StudentDetailScreen extends StatelessWidget {
 
   // --- WIDGET HELPER ---
 
-  // Helper baru untuk 1 item stat (kiri ATAU kanan)
   Widget _buildStatItem(String title, String value) {
-    // (Anda bisa tambahkan Icon di sini jika mau)
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 6.0, horizontal: 8.0),
       child: Row(
@@ -341,7 +394,6 @@ class StudentDetailScreen extends StatelessWidget {
     );
   }
 
-  // Helper baru untuk 1 baris (kiri DAN kanan)
   Widget _buildStatRow(Widget statLeft, Widget statRight) {
     return Row(
       children: [

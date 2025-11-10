@@ -1,11 +1,8 @@
-// lib/service/currency_api_service.dart
-// (FILE BARU)
-
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 class CurrencyApiService {
-  // Kita akan gunakan API gratis dari exchangerate-api
+  // API gratis dari exchangerate-api
   // Kita ambil 'IDR' (Rupiah) sebagai mata uang dasar
   final String apiUrl = 'https://api.exchangerate-api.com/v4/latest/IDR';
 

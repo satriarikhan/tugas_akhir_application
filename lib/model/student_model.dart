@@ -1,5 +1,3 @@
-// lib/model/student_model.dart
-// (Sesuaikan path import Anda jika perlu)
 import 'package:tugas_akhir_application/model/profile_model.dart';
 import 'package:tugas_akhir_application/model/skill_model.dart';
 import 'package:tugas_akhir_application/model/weapon_model.dart';
@@ -24,7 +22,6 @@ class Student {
   final Profile profile;
   final List<String> equipment;
 
-  // --- PERBAIKAN: Tambahkan SEMUA statistik ---
   final int maxHp;
   final int maxAtk;
   final int maxDef;
@@ -42,8 +39,6 @@ class Student {
   final int defensePen;
   final int magCount;
   final int magCost;
-  // --- AKHIR PERBAIKAN ---
-
   final String iconUrl;
   final String portraitUrl;
   final String lobbyUrl;
@@ -65,7 +60,6 @@ class Student {
     required this.weapon,
     required this.profile,
     required this.equipment,
-    // --- PERBAIKAN: Tambahkan di constructor ---
     required this.maxHp,
     required this.maxAtk,
     required this.maxDef,
@@ -83,7 +77,6 @@ class Student {
     required this.defensePen,
     required this.magCount,
     required this.magCost,
-    // --- AKHIR PERBAIKAN ---
     required this.iconUrl,
     required this.portraitUrl,
     required this.lobbyUrl,
@@ -102,10 +95,8 @@ class Student {
 
     var statsMap = json['Stats'] as Map<String, dynamic>?;
     var maxStatsMap = statsMap?['MaxStats'] as Map<String, dynamic>?;
-    // Ambil statistik Level 100
     var level100StatsMap = maxStatsMap?['100'] as Map<String, dynamic>? ?? {};
 
-    // --- PERBAIKAN: Ambil SEMUA statistik ---
     int hp = level100StatsMap['MaxHP'] ?? 0;
     int atk = level100StatsMap['AttackPower'] ?? 0;
     int def = level100StatsMap['DefensePower'] ?? 0;
@@ -147,7 +138,7 @@ class Student {
       profile: Profile.fromJson(profileData),
       equipment: studentEquipment,
 
-      // --- PERBAIKAN: Teruskan semua statistik ---
+    
       maxHp: hp,
       maxAtk: atk,
       maxDef: def,
@@ -165,7 +156,6 @@ class Student {
       defensePen: defensePen,
       magCount: magCount,
       magCost: magCost,
-      // --- AKHIR PERBAIKAN ---
 
       iconUrl:
           'https://raw.githubusercontent.com/SchaleDB/SchaleDB/main/images/student/icon/$studentId.webp',

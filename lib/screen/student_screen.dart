@@ -1,16 +1,14 @@
-// lib/main.dart
 import 'package:flutter/material.dart';
-// Sesuaikan path ini dengan struktur folder Anda
 import 'package:tugas_akhir_application/model/student_model.dart';
 import 'package:tugas_akhir_application/service/api_service.dart';
 import 'package:tugas_akhir_application/screen/student_detail_screen.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(const MyApp(isLoggedIn: false,));
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  const MyApp({super.key, required bool isLoggedIn});
 
   @override
   Widget build(BuildContext context) {
@@ -150,7 +148,6 @@ class _StudentListScreenState extends State<StudentListScreen> {
                           roleMatch;
                     }).toList();
 
-                    // --- PERUBAHAN DI SINI ---
                     // Kirim data yang sudah difilter ke StudentGridView (nama baru)
                     return StudentGridView(students: filteredStudents);
                   } else {
@@ -250,10 +247,6 @@ class _StudentListScreenState extends State<StudentListScreen> {
     );
   }
 }
-
-// --- PERUBAHAN DI SINI ---
-// Kita ganti nama StudentListView menjadi StudentGridView
-// dan menggunakan GridView.builder
 
 class StudentGridView extends StatelessWidget {
   final List<Student> students;
