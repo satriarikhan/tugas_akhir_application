@@ -3,12 +3,10 @@ import 'package:tugas_akhir_application/model/student_model.dart';
 import 'package:tugas_akhir_application/service/api_service.dart';
 import 'package:tugas_akhir_application/screen/student_detail_screen.dart';
 
-void main() {
-  runApp(const MyApp(isLoggedIn: false,));
-}
+
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key, required bool isLoggedIn});
+  const MyApp();
 
   @override
   Widget build(BuildContext context) {

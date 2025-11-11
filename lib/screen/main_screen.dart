@@ -1,21 +1,33 @@
+// lib/screen/main_screen.dart
+// (DIKEMBALIKAN KE VERSI SEBELUM NOTIFIKASI)
+
 import 'package:flutter/material.dart';
 import 'package:tugas_akhir_application/features/server_reset_timer.dart';
 import 'package:tugas_akhir_application/screen/student_screen.dart';
-import 'package:tugas_akhir_application/screen/topup_page.dart';
+import 'package:tugas_akhir_application/screen/topup_page.dart'; 
+
 import 'package:tugas_akhir_application/screen/profile_page.dart';
 
 class MainScreen extends StatefulWidget {
-  const MainScreen({super.key, required String successMessage});
+  // --- DIHAPUS DARI SINI ---
+  // final String? successMessage;
+  // --- AKHIR PENGHAPUSAN ---
+
+  const MainScreen({
+    super.key,
+    // this.successMessage, // <-- DIHAPUS
+  });
 
   @override
   State<MainScreen> createState() => _MainScreenState();
 }
 
 class _MainScreenState extends State<MainScreen> {
-  int _selectedIndex = 0;
+  int _selectedIndex = 0; 
+
   static final List<Widget> _widgetOptions = <Widget>[
-    const HomeScreen(), // Halaman Home (yang berisi menu)
-    ProfilePage(), // Halaman Profil
+    const HomeScreen(), 
+    ProfilePage(), 
   ];
 
   void _onItemTapped(int index) {
@@ -24,6 +36,8 @@ class _MainScreenState extends State<MainScreen> {
     });
   }
 
+  // --- FUNGSI initState DAN _showSuccessSnackBar DIHAPUS DARI SINI ---
+  
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -40,6 +54,9 @@ class _MainScreenState extends State<MainScreen> {
   }
 }
 
+// --- (Kode HomeScreen dan MenuCard sisanya sama persis, tidak perlu diubah) ---
+// --- (Saya sertakan di sini untuk kelengkapan file) ---
+
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
@@ -48,14 +65,24 @@ class HomeScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('MyArchieve'),
-        automaticallyImplyLeading: false,
+        automaticallyImplyLeading: false, 
+        actions: [
+          TextButton.icon(
+            onPressed: () {},
+            icon: const Icon(Icons.language, size: 18),
+            label: const Text('Global'),
+            style: TextButton.styleFrom(foregroundColor: Colors.white),
+          ),
+          IconButton(onPressed: () {}, icon: const Icon(Icons.search)),
+          IconButton(onPressed: () {}, icon: const Icon(Icons.settings)),
+        ],
       ),
       body: SingleChildScrollView(
         child: Column(
           children: [
             _buildInfoBanner(),
             _buildResetTimer(),
-            _buildMenu(context),
+            _buildMenu(context), 
           ],
         ),
       ),
@@ -90,7 +117,7 @@ class HomeScreen extends StatelessWidget {
         children: [
           MenuCard(
             title: 'Students',
-            description: 'View student statistics and details here.',
+            description: 'View stats, skills, weapons, equipment and more...',
             icon: Icons.people_outline,
             onTap: () {
               Navigator.push(
@@ -101,12 +128,11 @@ class HomeScreen extends StatelessWidget {
               );
             },
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 12), 
           MenuCard(
             title: 'Top Up',
-            description:
-                'You can buy Pyroxene here to upgrade your experience! and feel free to top up anytime.',
-            icon: Icons.monetization_on_outlined,
+            description: 'Beli Pyroxene dan konversi mata uang.',
+            icon: Icons.monetization_on_outlined, 
             onTap: () {
               Navigator.push(
                 context,
